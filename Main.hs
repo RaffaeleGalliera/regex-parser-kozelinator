@@ -7,7 +7,7 @@ data RegExp
     = Epsilon
     | Unione RegExp RegExp
     | Star RegExp
-    | Concat RegExp RegExp
+    | Concatena RegExp RegExp
     | Empty
     | Term Char
     deriving (Show, Eq)
@@ -41,6 +41,12 @@ term = Term <$> foldr ((<|>) . charP) empty (['a'..'z'] ++ ['0'..'9'])
 star :: Parser RegExp
 star = Star <$> (regExp <* charP '*')
 
+concatena :: Parser RegExp
+concatena = Concatena <$> regExp <*> regExp
+
+unione :: Parser RegExp
+unione = Unione <$> (regExp <* charP '+') <*> regExp
+
 charP :: Char -> Parser Char
 charP x = Parser f
     where
@@ -48,9 +54,9 @@ charP x = Parser f
             | y == x = Just (ys, x)
             | otherwise = Nothing
         f[] = Nothing
-        
+
 regExp :: Parser RegExp
-regExp =  term <|> star
+regExp =  term <|> star <|> unione <|> concatena
 
 main :: IO ()
 main = undefined
