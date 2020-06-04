@@ -12,7 +12,9 @@ data RegExp
     | Term Char
     deriving (Show, Eq)
 
-newtype Parser a = Parser (String -> Maybe (String, a))
+newtype Parser a = Parser 
+    { runParser :: String -> Maybe (String, a)
+    }
 
 main :: IO ()
 main = undefined
