@@ -10,7 +10,7 @@ data RegExp
     | Concat RegExp RegExp
     | Empty
     | Term Char
-
+    deriving (Show, Eq)
 
 newtype Parser a = Parser (String -> Maybe (String, a))
 
