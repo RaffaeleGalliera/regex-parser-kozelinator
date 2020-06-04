@@ -9,7 +9,7 @@ data RegExp
     | Star RegExp
     | Concat RegExp RegExp
     | Empty
-    | TermChar
+    | Term Char
 
 
 newtype Parser a = Parser (String -> Maybe (String, a))
