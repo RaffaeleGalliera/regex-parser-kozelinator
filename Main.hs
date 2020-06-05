@@ -60,3 +60,4 @@ regExp =  term <|> star <|> unione <|> concatena
 
 main :: IO ()
 main = undefined
+
