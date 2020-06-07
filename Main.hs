@@ -35,24 +35,6 @@ instance Alternative Parser where
     (Parser p1) <|> (Parser p2) =
         Parser $ \input -> p1 input <|> p2 input
 
-term :: Parser RegExp
-term = Term <$> foldr ((<|>) . charP) empty (['a'..'z'] ++ ['0'..'9'])
-
-star :: Parser RegExp
-star = Star <$> ((subRegExp <|> term) <* charP '*')
-
-concatena :: Parser RegExp
-concatena = Concatena <$> (subRegExpConcat <|> regExpConcat) <*> (concatena <|> subRegExpConcat <|> regExpConcat)
-
-unione :: Parser RegExp
-unione = Unione <$> ((subRegExp <|> term)  <* charP '+') <*> (unione <|> subRegExp <|> term) 
-
-subRegExp :: Parser RegExp
-subRegExp = charP '(' *> regExp <* charP ')'
-
-subRegExpConcat :: Parser RegExp
-subRegExpConcat = charP '(' *> regExpConcat <* charP ')'
-
 charP :: Char -> Parser Char
 charP x = Parser f
     where
@@ -60,9 +42,21 @@ charP x = Parser f
             | y == x = Just (ys, x)
             | otherwise = Nothing
         f[] = Nothing
+        
+term :: Parser RegExp
+term = Term <$> foldr ((<|>) . charP) empty (['a'..'z'] ++ ['0'..'9'])
 
-regExpConcat :: Parser RegExp
-regExpConcat = star <|> unione <|> term
+star :: Parser RegExp
+star = Star <$> ((subRegExp <|> term) <* charP '*')
+
+concatena :: Parser RegExp
+concatena = Concatena <$> (subRegExp <|> term) <*> (regExp <|> subRegExp)
+
+unione :: Parser RegExp
+unione = Unione <$> ((subRegExp <|> term)  <* charP '+') <*> (regExp <|> subRegExp) 
+
+subRegExp :: Parser RegExp
+subRegExp = charP '(' *> regExp <* charP ')'
 
 regExp :: Parser RegExp
 regExp = star <|> concatena <|> unione <|> term
