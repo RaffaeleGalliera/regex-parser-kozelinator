@@ -59,7 +59,7 @@ subRegExp :: Parser RegExp
 subRegExp = charP '(' *> regExp <* charP ')'
 
 regExp :: Parser RegExp
-regExp = unione <|> concatena <|> star <|> term
+regExp = unione <|> concatena <|> star <|> term <|> subRegExp
 
 main :: IO ()
 main = undefined
