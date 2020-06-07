@@ -50,16 +50,16 @@ star :: Parser RegExp
 star = Star <$> ((subRegExp <|> term) <* charP '*')
 
 concatena :: Parser RegExp
-concatena = Concatena <$> (subRegExp <|> term) <*> (regExp <|> subRegExp)
+concatena = Concatena <$> (subRegExp <|> star <|> term) <*> (regExp <|> subRegExp)
 
 unione :: Parser RegExp
-unione = Unione <$> ((subRegExp <|> term)  <* charP '+') <*> (regExp <|> subRegExp) 
+unione = Unione <$> ((subRegExp <|> star <|> term)  <* charP '+') <*> (regExp <|> subRegExp) 
 
 subRegExp :: Parser RegExp
 subRegExp = charP '(' *> regExp <* charP ')'
 
 regExp :: Parser RegExp
-regExp = star <|> concatena <|> unione <|> term
+regExp = unione <|> concatena <|> star <|> term
 
 main :: IO ()
 main = undefined
