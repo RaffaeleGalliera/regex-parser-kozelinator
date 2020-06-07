@@ -47,13 +47,13 @@ term :: Parser RegExp
 term = Term <$> foldr ((<|>) . charP) empty (['a'..'z'] ++ ['0'..'9'])
 
 star :: Parser RegExp
-star = Star <$> ((subRegExp <|> term) <* charP '*')
+star = Star <$> ((term <|> subRegExp) <* charP '*')
 
 concatena :: Parser RegExp
-concatena = Concatena <$> (subRegExp <|> star <|> term) <*> (concatena <|> star <|> term <|> subRegExp)
+concatena = Concatena <$> (star <|> term <|> subRegExp) <*> (concatena <|> star <|> term <|> subRegExp)
 
 unione :: Parser RegExp
-unione = Unione <$> ((subRegExp <|> star <|> concatena <|> term) <* charP '+') <*> (regExp <|> subRegExp) 
+unione = Unione <$> ((concatena <|> star <|> term <|> subRegExp) <* charP '+') <*> (regExp <|> subRegExp) 
 
 subRegExp :: Parser RegExp
 subRegExp = charP '(' *> regExp <* charP ')'
