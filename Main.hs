@@ -46,6 +46,9 @@ charP x = Parser f
 term :: Parser RegExp
 term = Term <$> foldr ((<|>) . charP) empty (['a'..'z'] ++ ['0'..'9'])
 
+epsilon :: Parser RegExp
+epsilon = (\_ -> Epsilon) <$> charP '$'
+
 star :: Parser RegExp
 star = Star <$> ((term <|> subRegExp) <* charP '*')
 
@@ -61,6 +64,11 @@ subRegExp = charP '(' *> regExp <* charP ')'
 regExp :: Parser RegExp
 regExp = unione <|> concatena <|> star <|> term <|> subRegExp
 
-main :: IO ()
-main = undefined
+readLines :: FilePath -> IO [String]
+readLines = fmap lines . readFile
 
+main :: IO ()
+main = do
+    content <- readLines "regex.txt"
+    let parsed = map (\regex -> fmap snd (runParser regExp regex)) content
+    mapM_ (mapM_ print) parsed
