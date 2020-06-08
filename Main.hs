@@ -1,4 +1,4 @@
-module Main where 
+module Main where
 
 import Data.Char
 import Control.Applicative
@@ -12,39 +12,35 @@ data RegExp
     | Term Char
     deriving (Show, Eq)
 
-newtype Parser a = Parser 
+newtype Parser a = Parser
     { runParser :: String -> Maybe (String, a)
     }
 
 instance Functor Parser where
-    fmap f (Parser p) =
-        Parser $ \input -> do
+    fmap f (Parser p) = Parser $ \input -> do
         (input', x) <- p input
         Just (input', f x)
-    
+
 instance Applicative Parser where
     pure x = Parser $ \input -> Just (input, x)
-    (Parser p1) <*> (Parser p2) =
-        Parser $ \input -> do
-        (input', f) <- p1 input
+    (Parser p1) <*> (Parser p2) = Parser $ \input -> do
+        (input' , f) <- p1 input
         (input'', a) <- p2 input'
         Just (input'', f a)
 
 instance Alternative Parser where
     empty = Parser $ const Nothing
-    (Parser p1) <|> (Parser p2) =
-        Parser $ \input -> p1 input <|> p2 input
+    (Parser p1) <|> (Parser p2) = Parser $ \input -> p1 input <|> p2 input
 
 charP :: Char -> Parser Char
 charP x = Parser f
-    where
-        f (y:ys)
-            | y == x = Just (ys, x)
-            | otherwise = Nothing
-        f[] = Nothing
-        
+  where
+    f (y : ys) | y == x    = Just (ys, x)
+               | otherwise = Nothing
+    f [] = Nothing
+
 term :: Parser RegExp
-term = Term <$> foldr ((<|>) . charP) empty (['a'..'z'] ++ ['0'..'9'])
+term = Term <$> foldr ((<|>) . charP) empty (['a' .. 'z'] ++ ['0' .. '9'])
 
 epsilon :: Parser RegExp
 epsilon = (\_ -> Epsilon) <$> charP '$'
@@ -53,10 +49,16 @@ star :: Parser RegExp
 star = Star <$> ((term <|> subRegExp) <* charP '*')
 
 concatena :: Parser RegExp
-concatena = Concatena <$> (star <|> term <|> subRegExp) <*> (concatena <|> star <|> term <|> subRegExp)
+concatena =
+    Concatena
+        <$> (star <|> term <|> subRegExp)
+        <*> (concatena <|> star <|> term <|> subRegExp)
 
 unione :: Parser RegExp
-unione = Unione <$> ((concatena <|> star <|> term <|> subRegExp) <* charP '+') <*> (regExp <|> subRegExp) 
+unione =
+    Unione
+        <$> ((concatena <|> star <|> term <|> subRegExp) <* charP '+')
+        <*> (regExp <|> subRegExp)
 
 subRegExp :: Parser RegExp
 subRegExp = charP '(' *> regExp <* charP ')'
@@ -67,8 +69,12 @@ regExp = unione <|> concatena <|> star <|> term <|> subRegExp
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
 
+printFormatted :: (String, Maybe RegExp) -> IO ()
+printFormatted (stringRegExp, (Just x)) = putStrLn $ stringRegExp ++ ": " ++ show x
+
 main :: IO ()
 main = do
     content <- readLines "regex.txt"
     let parsed = map (\regex -> fmap snd (runParser regExp regex)) content
-    mapM_ (mapM_ print) parsed
+    mapM_ printFormatted $ zip content parsed
+    -- mapM_ is equivalent to sequence_ $ fmap ...
