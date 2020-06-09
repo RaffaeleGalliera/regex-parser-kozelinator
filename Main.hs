@@ -2,14 +2,14 @@ module Main where
 
 import Data.Char
 import Control.Applicative
+import System.Environment (getArgs)
 
 data RegExp
     = Epsilon
-    | Unione RegExp RegExp
+    | Term Char
     | Star RegExp
     | Concatena RegExp RegExp
-    | Empty
-    | Term Char
+    | Unione RegExp RegExp
     deriving (Show, Eq)
 
 newtype Parser a = Parser
@@ -43,38 +43,43 @@ term :: Parser RegExp
 term = Term <$> foldr ((<|>) . charP) empty (['a' .. 'z'] ++ ['0' .. '9'])
 
 epsilon :: Parser RegExp
-epsilon = (\_ -> Epsilon) <$> charP '$'
-
-star :: Parser RegExp
-star = Star <$> ((term <|> subRegExp) <* charP '*')
-
-concatena :: Parser RegExp
-concatena =
-    Concatena
-        <$> (star <|> term <|> subRegExp)
-        <*> (concatena <|> star <|> term <|> subRegExp)
-
-unione :: Parser RegExp
-unione =
-    Unione
-        <$> ((concatena <|> star <|> term <|> subRegExp) <* charP '+')
-        <*> (regExp <|> subRegExp)
+epsilon = (\_ -> Epsilon) <$> charP '&'
 
 subRegExp :: Parser RegExp
 subRegExp = charP '(' *> regExp <* charP ')'
 
+factor :: Parser RegExp
+factor = term <|> subRegExp <|> epsilon
+
+star :: Parser RegExp
+star = Star <$> (factor <* charP '*')
+
+concatena :: Parser RegExp
+concatena =
+    Concatena
+        <$> (star <|> factor)
+        <*> (concatena <|> star <|> factor)
+
+unione :: Parser RegExp
+unione =
+    Unione
+        <$> ((concatena <|> star <|> factor) <* charP '+')
+        <*> (regExp <|> subRegExp)
+
 regExp :: Parser RegExp
-regExp = unione <|> concatena <|> star <|> term <|> subRegExp
+regExp = unione <|> concatena <|> star <|> factor
 
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
 
 printFormatted :: (String, Maybe RegExp) -> IO ()
-printFormatted (stringRegExp, (Just x)) = putStrLn $ stringRegExp ++ ": " ++ show x
+printFormatted (stringRegExp, Just x) = putStrLn $ stringRegExp ++ ": " ++ show x
 
 main :: IO ()
 main = do
-    content <- readLines "regex.txt"
-    let parsed = map (\regex -> fmap snd (runParser regExp regex)) content
+    args <- getArgs 
+    content <- readLines (head args)
+    let parsed = map (fmap snd . runParser regExp) content
     mapM_ printFormatted $ zip content parsed
     -- mapM_ is equivalent to sequence_ $ fmap ...
+
