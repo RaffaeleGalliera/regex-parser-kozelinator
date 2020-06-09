@@ -1,0 +1,7 @@
+ab+c*
+a+bc*
+a+(b+(c+fd)*)
+(teo)(rafu)
+teorafu
+(t)(e)(o)(r)(a)(f)(u)
+(ab*+c(d+f*)*)*
