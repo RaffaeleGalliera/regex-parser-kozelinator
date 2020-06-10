@@ -1,16 +1,23 @@
-L'idea sarebbe di fare un parser per espressioni regolari. Data quindi
-una stringa che contiene un'espressione regolare, costruire un abstract
-syntax tree (AST).
-Nella sintassi Haskell, potrebbe essere un dato costruito cosi`:
+## WIP: Regular Expressions Parser 
 
-data RegExp = Epsilon | Unione RegExp RegExp | Star RegExp | Concat
-RegExp RegExp | Empty |Term Char
+Print the AST (Abstract Syntax Tree) of Regular Expressions taken in input from a file with every RegExp separed by new lines.
 
-Come simboli dell'alfabeto terminale potremmo tenere tutte le lettere
-minuscole e i numeri.
+RegExp should a data structured like:
+```haskell
+data RegExp
+    = Epsilon
+    | Term Char
+    | Star RegExp
+    | Concatena RegExp RegExp
+    | Unione RegExp RegExp
+```
 
-Quindi data una stringa "a*(b+d)*" dovreste costruire un AST
+As terminal symbols we kept all the lower case letters and digits.
 
-Concat (Star (Term 'a')) (Star (Unione (Term 'b') (Term 'd') )) )
+Given a string "a*(b+d)*" the program should build an AST like
 
-Altrimenti potrei assegnarvi due tesine separate.
+*Concat (Star (Term 'a')) (Star (Union (Term 'b') (Term 'd')) )*
+
+
+
+
