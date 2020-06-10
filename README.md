@@ -16,4 +16,4 @@ As terminal symbols we kept all the lower case letters and digits.
 
 Given a string "a*(b+d)*" the program should build an AST like
 
-*Concat (Star (Term 'a')) (Star (Union (Term 'b') (Term 'd')) )*
+**Concat (Star (Term 'a')) (Star (Union (Term 'b') (Term 'd')) )**
