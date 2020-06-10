@@ -72,14 +72,16 @@ regExp = unione <|> concatena <|> star <|> factor
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
 
-printFormatted :: (String, Maybe RegExp) -> IO ()
-printFormatted (stringRegExp, Just x) = putStrLn $ stringRegExp ++ ": " ++ show x
+printFormatted :: (String, Maybe (String, RegExp)) -> IO ()
+printFormatted (stringRegExp, (Just ("", parsed))) = putStrLn $ stringRegExp ++ " -> " ++ show parsed
+printFormatted (stringRegExp, (Just (rest, parsed))) = putStrLn $ stringRegExp ++ " -> Errore: '" ++ rest ++ "' non e' stato parsato" 
+printFormatted ("", Nothing) = putStrLn $ "Input vuoto"
+printFormatted (stringRegExp, Nothing) = putStrLn $ "Carattere non appartamente al alfabeto ammesso"  
 
 main :: IO ()
 main = do
     args <- getArgs 
     content <- readLines (head args)
-    let parsed = map (fmap snd . runParser regExp) content
+    let parsed = map (runParser regExp) content
     mapM_ printFormatted $ zip content parsed
     -- mapM_ is equivalent to sequence_ $ fmap ...
-
