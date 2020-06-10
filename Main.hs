@@ -74,9 +74,10 @@ readLines = fmap lines . readFile
 
 printFormatted :: (String, Maybe (String, RegExp)) -> IO ()
 printFormatted (stringRegExp, (Just ("", parsed))) = putStrLn $ stringRegExp ++ " -> " ++ show parsed
-printFormatted (stringRegExp, (Just (rest, parsed))) = putStrLn $ stringRegExp ++ " -> Errore: '" ++ rest ++ "' non e' stato parsato" 
+printFormatted (stringRegExp, (Just ("*", parsed))) = putStrLn $ stringRegExp ++ " -> Errore: Star non puo' essere seguito da uno Star senza parentesi"
+printFormatted (stringRegExp, (Just (rest, parsed))) = putStrLn $ stringRegExp ++ " -> Errore: '" ++ rest ++ "' non e' stato parsato"
 printFormatted ("", Nothing) = putStrLn $ "Input vuoto"
-printFormatted (stringRegExp, Nothing) = putStrLn $ "Carattere non appartamente al alfabeto ammesso"  
+printFormatted (stringRegExp, Nothing) = putStrLn $ "Carattere non appartamente al alfabeto ammesso"
 
 main :: IO ()
 main = do
