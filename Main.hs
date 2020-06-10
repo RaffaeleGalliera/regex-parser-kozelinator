@@ -85,4 +85,4 @@ main = do
     content <- readLines (head args)
     let parsed = map (runParser regExp) content
     mapM_ printFormatted $ zip content parsed
-    -- mapM_ is equivalent to sequence_ $ fmap ...
+
