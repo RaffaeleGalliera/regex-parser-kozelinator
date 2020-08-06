@@ -18,4 +18,4 @@ Given a string "a*(b+d)*" the program should build an AST like
 
 `Concat (Star (Term 'a')) (Star (Union (Term 'b') (Term 'd')))`
 
-Compile it and try it with the example file "regex.txt"
+Compile and try it with the example file "regex.txt"
