@@ -8,14 +8,14 @@ data RegExp
     = Epsilon
     | Term Char
     | Star RegExp
-    | Concatena RegExp RegExp
-    | Unione RegExp RegExp
+    | Concatenation RegExp RegExp
+    | Union RegExp RegExp
 ```
 
 As terminal symbols we kept all the lower case letters and digits.
 
 Given a string "a*(b+d)*" the program should build an AST like
 
-`Concat (Star (Term 'a')) (Star (Union (Term 'b') (Term 'd')))`
+`Concatenation (Star (Term 'a')) (Star (Union (Term 'b') (Term 'd')))`
 
 Compile and try it with the example file "regex.txt"
