@@ -8,8 +8,8 @@ data RegExp
     = Epsilon
     | Term Char
     | Star RegExp
-    | Concatena RegExp RegExp
-    | Unione RegExp RegExp
+    | Concatenation RegExp RegExp
+    | Union RegExp RegExp
     deriving (Show, Eq)
 
 newtype Parser a = Parser
@@ -54,30 +54,30 @@ factor = term <|> subRegExp <|> epsilon
 star :: Parser RegExp
 star = Star <$> (factor <* charP '*')
 
-concatena :: Parser RegExp
-concatena =
-    Concatena
+concatenation :: Parser RegExp
+concatenation =
+    Concatenation
         <$> (star <|> factor)
-        <*> (concatena <|> star <|> factor)
+        <*> (concatenation <|> star <|> factor)
 
-unione :: Parser RegExp
-unione =
-    Unione
-        <$> ((concatena <|> star <|> factor) <* charP '+')
+union :: Parser RegExp
+union =
+    Union
+        <$> ((concatenation <|> star <|> factor) <* charP '+')
         <*> (regExp <|> subRegExp)
 
 regExp :: Parser RegExp
-regExp = unione <|> concatena <|> star <|> factor
+regExp = union <|> concatenation <|> star <|> factor
 
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
 
 printFormatted :: (String, Maybe (String, RegExp)) -> IO ()
 printFormatted (stringRegExp, (Just ("", parsed))) = putStrLn $ stringRegExp ++ " -> " ++ show parsed
-printFormatted (stringRegExp, (Just ("*", parsed))) = putStrLn $ stringRegExp ++ " -> Errore: Star non puo' essere seguito da uno Star senza parentesi"
-printFormatted (stringRegExp, (Just (rest, parsed))) = putStrLn $ stringRegExp ++ " -> Errore: '" ++ rest ++ "' non e' stato parsato"
-printFormatted ("", Nothing) = putStrLn $ "Input vuoto"
-printFormatted (stringRegExp, Nothing) = putStrLn $ "Carattere non appartamente al alfabeto ammesso"
+printFormatted (stringRegExp, (Just ("*", parsed))) = putStrLn $ stringRegExp ++ " -> Error: Star cannot be followed by a Star without parentheses"
+printFormatted (stringRegExp, (Just (rest, parsed))) = putStrLn $ stringRegExp ++ " -> Error: '" ++ rest ++ " has not been parsed"
+printFormatted ("", Nothing) = putStrLn $ "empty input"
+printFormatted (stringRegExp, Nothing) = putStrLn $ "Symbol not permitted"
 
 main :: IO ()
 main = do
@@ -85,4 +85,3 @@ main = do
     content <- readLines (head args)
     let parsed = map (runParser regExp) content
     mapM_ printFormatted $ zip content parsed
-
